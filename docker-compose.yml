@@ -9,7 +9,14 @@ x-ccache: &ccache
 
 services:
   builder:
-    image: ${IMAGE_REPO}/milvus-env:${OS_NAME}-${DATE_VERSION}
+    image: harbor.milvus.io/milvusdb/milvus-env:ubuntu22.04-20240620-5be9929
+    #image: ${IMAGE_REPO}/milvus-env:${OS_NAME}-${DATE_VERSION}
+    # harbor.milvus.io/milvusdb/milvus-env:ubuntu22.04-20240620-5be9929
+    # ${IMAGE_REPO} = milvusdb
+    # export IMAGE_REPO="harbor.milvus.io/milvusdb"
+    # ${OS_NAME} = ubuntu22.04
+    # ${DATE_VERSION} = 20240620-5be9929
+    # docker pull harbor.milvus.io/milvus/milvus-env@sha256:364afbf2c654ede516c6a1370a209f5efc91ea8b113ba6323e2bb61d9e39a8ed
     # Build devcontainer
     build:
       context: .

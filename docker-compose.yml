@@ -9,8 +9,8 @@ x-ccache: &ccache
 
 services:
   builder:
-    image: harbor.milvus.io/milvusdb/milvus-env:ubuntu22.04-20240620-5be9929
-    #image: ${IMAGE_REPO}/milvus-env:${OS_NAME}-${DATE_VERSION}
+    #image: harbor.milvus.io/milvusdb/milvus-env:ubuntu22.04-20240620-5be9929
+    image: ${IMAGE_REPO}/milvus-env:${OS_NAME}-${DATE_VERSION}
     # harbor.milvus.io/milvusdb/milvus-env:ubuntu22.04-20240620-5be9929
     # ${IMAGE_REPO} = milvusdb
     # export IMAGE_REPO="harbor.milvus.io/milvusdb"

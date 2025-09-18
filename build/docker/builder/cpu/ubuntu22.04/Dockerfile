@@ -21,7 +21,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends wget curl ca-ce
     rm -rf /var/lib/apt/lists/*
 
 # upgrade gcc to 15
-RUN apt-get update && apt-get install -y gcc-15 g++-15 && cd /usr/bin \
+RUN apt-get update && apt-get install -y g++-15 && cd /usr/bin \
     && unlink gcc && ln -s gcc-15 gcc \
     && unlink g++ && ln -s g++-15 g++ \
     && unlink gcov && ln -s gcov-15 gcov

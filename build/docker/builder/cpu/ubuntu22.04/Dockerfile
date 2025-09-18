@@ -9,12 +9,23 @@
 # is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
 # or implied. See the License for the specific language governing permissions and limitations under the License.
 
-FROM ubuntu:jammy-20240530
+FROM ubuntu:22.04
 
 ARG TARGETARCH
 
+RUN apt update && apt install -y --no-install-recommends sudo wget build-essential mc \
+    python3 python3-pip flex bison build-essential git make gawk flex bison libgmp-dev libmpfr-dev \
+    libmpc-dev python3 binutils perl libisl-dev libzstd-dev tar gzip bzip2 ccache
+
+RUN mkdir /root/gcc15 && cd /root/gcc15 && \
+    wget https://github.com/gcc-mirror/gcc/archive/refs/tags/releases/gcc-15.2.0.tar.gz && \
+    tar zxvf gcc-15.2.0.tar.gz && cd gcc-releases-gcc-15.2.0 && ./contrib/download_prerequisites && \
+    mkdir /root/gcc15/build && cd /root/gcc15/build && \
+    ../gcc-releases-gcc-15.2.0/configure --prefix=/opt/gcc-15 --disable-multilib --enable-languages=c,c++ && \
+    make -j && make install
+
 RUN apt-get update && apt-get install -y --no-install-recommends wget curl ca-certificates gnupg2 \
-    g++ gcc gdb gdbserver ninja-build git make ccache libssl-dev zlib1g-dev zip unzip \
+    gdb gdbserver ninja-build git make ccache libssl-dev zlib1g-dev zip unzip \
     clang-format-12 clang-tidy-12 lcov libtool m4 autoconf automake python3 python3-pip \
     pkg-config uuid-dev libaio-dev libopenblas-dev && \
     apt-get remove --purge -y && \

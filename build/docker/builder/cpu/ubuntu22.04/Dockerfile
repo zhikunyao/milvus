@@ -22,7 +22,7 @@ RUN mkdir /root/gcc15 && cd /root/gcc15 && \
     tar zxvf gcc-15.2.0.tar.gz && cd gcc-releases-gcc-15.2.0 && ./contrib/download_prerequisites && \
     mkdir /root/gcc15/build && cd /root/gcc15/build && \
     ../gcc-releases-gcc-15.2.0/configure --prefix=/opt/gcc-15 --disable-multilib --enable-languages=c,c++ && \
-    make -j && make install
+    make -j 4 && make install
 
 RUN apt-get update && apt-get install -y --no-install-recommends wget curl ca-certificates gnupg2 \
     gdb gdbserver ninja-build git make ccache libssl-dev zlib1g-dev zip unzip \

@@ -9,48 +9,27 @@
 # is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
 # or implied. See the License for the specific language governing permissions and limitations under the License.
 
-FROM ubuntu:22.04
+FROM ubuntu:jammy-20240530
 
 ARG TARGETARCH
 
-RUN apt update && apt install -y --no-install-recommends sudo wget build-essential mc \
-    python3 python3-pip flex bison build-essential git make gawk flex bison libgmp-dev libmpfr-dev \
-    libmpc-dev python3 binutils perl libisl-dev libzstd-dev tar gzip bzip2 ccache
-
-RUN mkdir /root/gcc15 && cd /root/gcc15 && \
-    wget https://github.com/gcc-mirror/gcc/archive/refs/tags/releases/gcc-15.2.0.tar.gz && \
-    tar zxvf gcc-15.2.0.tar.gz && cd gcc-releases-gcc-15.2.0 && ./contrib/download_prerequisites && \
-    mkdir /root/gcc15/build && cd /root/gcc15/build && \
-    ../gcc-releases-gcc-15.2.0/configure --prefix=/opt/gcc-15 --disable-multilib --enable-languages=c,c++ && \
-    make -j 4 && make install
-
 RUN apt-get update && apt-get install -y --no-install-recommends wget curl ca-certificates gnupg2 \
-    gdb gdbserver ninja-build git make ccache libssl-dev zlib1g-dev zip unzip \
-    clang-format-12 clang-tidy-12 lcov libtool m4 autoconf automake python3 python3-pip \
+    g++ gcc gdb gdbserver ninja-build git make ccache libssl-dev zlib1g-dev zip unzip \
+    clang-21 clang-format-21 clang-tidy-21 lcov libtool m4 autoconf automake python3 python3-pip \
     pkg-config uuid-dev libaio-dev libopenblas-dev && \
     apt-get remove --purge -y && \
     rm -rf /var/lib/apt/lists/*
 
-# upgrade gcc to 15
-RUN apt-get update && apt-get install -y g++-15 && cd /usr/bin \
-    && unlink gcc && ln -s gcc-15 gcc \
-    && unlink g++ && ln -s g++-15 g++ \
-    && unlink gcov && ln -s gcov-15 gcov
+# upgrade gcc to 12
+RUN apt-get update && apt-get install -y gcc-12 g++-12 && cd /usr/bin \
+    && unlink gcc && ln -s gcc-12 gcc \
+    && unlink g++ && ln -s g++-12 g++ \
+    && unlink gcov && ln -s gcov-12 gcov
 
 RUN pip3 install conan==1.64.1
 
 RUN echo "target arch $TARGETARCH"
 RUN wget -qO- "https://cmake.org/files/v3.31/cmake-3.31.8-linux-`uname -m`.tar.gz" | tar --strip-components=1 -xz -C /usr/local
-
-RUN mkdir /opt/vcpkg &&  \
-    wget -qO- vcpkg.tar.gz https://github.com/microsoft/vcpkg/archive/master.tar.gz | tar --strip-components=1 -xz -C /opt/vcpkg && \
-    rm -rf vcpkg.tar.gz
-
-ENV VCPKG_FORCE_SYSTEM_BINARIES 1
-
-RUN /opt/vcpkg/bootstrap-vcpkg.sh -disableMetrics && ln -s /opt/vcpkg/vcpkg /usr/local/bin/vcpkg && vcpkg version
-
-RUN vcpkg install azure-identity-cpp azure-storage-blobs-cpp gtest
 
 # Install Go
 ENV GOPATH /go

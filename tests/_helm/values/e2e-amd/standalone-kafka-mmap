@@ -25,7 +25,7 @@ standalone:
     enabled: true
   resources:
     limits:
-      cpu: "6"
+      cpu: "8"
       memory: 12Gi
     requests:
       cpu: "2"

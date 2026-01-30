@@ -67,10 +67,16 @@ beginTime=$(date +%s)
 echo -e "=== Running go unittest ===\n\n"
 
 for d in cmd/tools internal pkg client; do
-    pushd "$d" 
-    test_cmd 
+    MODULE_START=$(date +%s)
+    pushd "$d"
+    test_cmd
     popd
+    MODULE_END=$(date +%s)
+    echo "[perf] Module $d completed in $((MODULE_END - MODULE_START))s"
 done
+
+echo "[perf] Go codecov test summary:"
+echo "[perf]   Total modules tested: internal + pkg + client"
 
 endTime=$(date +%s)
 echo -e "=== Total time for go unittest: $(($endTime-$beginTime)) s ==="

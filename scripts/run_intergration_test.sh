@@ -68,9 +68,13 @@ beginTime=`date +%s`
 printf "=== Running integration test ===\n\n"
 
 for d in tests/integration; do
+    echo "Start to run integration test under \"$d\" pkg"
+    PKG_START=$(date +%s)
     pushd "$d"
-    test_cmd 
+    test_cmd
     popd
+    PKG_END=$(date +%s)
+    echo "[perf] Package $d completed in $((PKG_END - PKG_START))s"
 done
 
 endTime=`date +%s`

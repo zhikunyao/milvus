@@ -64,6 +64,7 @@ beginTime=$(date +%s)
 # run unittest
 for test in $(ls ${MILVUS_CORE_UNITTEST_DIR}); do
     echo "Running cpp unittest: ${MILVUS_CORE_UNITTEST_DIR}/$test"
+    TEST_START=$(date +%s)
     # run unittest
     if [ -n "$MILVUS_ENABLE_ASAN_LIB" ]; then
         echo "ASAN is enabled with env MILVUS_ENABLE_ASAN_LIB, set {$MILVUS_ENABLE_ASAN_LIB} at the front of LD_PRELOAD"
@@ -71,7 +72,10 @@ for test in $(ls ${MILVUS_CORE_UNITTEST_DIR}); do
     else
         ${MILVUS_CORE_UNITTEST_DIR}/${test}
     fi
-    if [ $? -ne 0 ]; then
+    TEST_EXIT=$?
+    TEST_END=$(date +%s)
+    echo "[perf] Test ${test} completed in $((TEST_END - TEST_START))s"
+    if [ $TEST_EXIT -ne 0 ]; then
         echo ${args}
         echo "${MILVUS_CORE_UNITTEST_DIR}/${test} run failed"
         exit -1

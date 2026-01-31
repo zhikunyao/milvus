@@ -210,16 +210,6 @@ pushd ${BUILD_OUTPUT_DIR}
 # Force update the variables each time
 make rebuild_cache >/dev/null 2>&1
 
-# If cached build used a different generator (e.g. Ninja), clear CMakeCache
-if [ -f CMakeCache.txt ]; then
-    CACHED_GEN=$(grep 'CMAKE_GENERATOR:INTERNAL' CMakeCache.txt 2>/dev/null | cut -d= -f2)
-    if [ -n "$CACHED_GEN" ] && [ "$CACHED_GEN" != "$CMAKE_GENERATOR" ]; then
-        echo "Generator changed from '$CACHED_GEN' to '$CMAKE_GENERATOR', clearing CMake cache"
-        rm -f CMakeCache.txt cmake_install.cmake
-        rm -rf CMakeFiles
-    fi
-fi
-
 CPU_ARCH=$(get_cpu_arch $CPU_TARGET)
 
 # In case any 3rdparty (e.g. libavrocpp) requires a minimum version of CMake lower than 3.5

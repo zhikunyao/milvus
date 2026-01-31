@@ -193,14 +193,7 @@ if [[ ! -d ${BUILD_OUTPUT_DIR} ]]; then
 fi
 source ${ROOT_DIR}/scripts/setenv.sh
 
-# Prefer Ninja for faster parallel builds if available
-if command -v ninja &> /dev/null; then
-    CMAKE_GENERATOR="Ninja"
-    echo "[perf] Using Ninja generator for faster C++ builds"
-else
-    CMAKE_GENERATOR="Unix Makefiles"
-    echo "[perf] Ninja not found, falling back to Unix Makefiles"
-fi
+CMAKE_GENERATOR="Unix Makefiles"
 
 # build with diskann index if OS is ubuntu or rocky or amzn
 if [ -f /etc/os-release ]; then
@@ -272,11 +265,7 @@ else
   # compile and build
   echo "[perf] Starting C++ build with ${jobs} parallel jobs at $(date +%Y-%m-%dT%H:%M:%S%z)"
   CPP_BUILD_START=$(date +%s)
-  if [ "${CMAKE_GENERATOR}" = "Ninja" ]; then
-    ninja -j ${jobs} install || exit 1
-  else
-    make -j ${jobs} install || exit 1
-  fi
+  make -j ${jobs} install || exit 1
   CPP_BUILD_END=$(date +%s)
   CPP_BUILD_DURATION=$((CPP_BUILD_END - CPP_BUILD_START))
   echo "[perf] C++ build completed in ${CPP_BUILD_DURATION}s ($(echo "scale=1; ${CPP_BUILD_DURATION}/60" | bc)m)"

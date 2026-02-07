@@ -32,6 +32,7 @@ FetchContent_Declare(
     mongo-cxx-driver
     GIT_REPOSITORY https://github.com/mongodb/mongo-cxx-driver.git
     GIT_TAG releases/v3.11
+    GIT_SUBMODULES ""  # Explicitly disable submodule update to avoid 'jobs' env var conflict
     GIT_SHALLOW TRUE
 )
 

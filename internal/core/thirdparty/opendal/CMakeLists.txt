@@ -31,6 +31,7 @@ FetchContent_Declare(
         opendal
         GIT_REPOSITORY  ${GIT_REPOSITORY}
         GIT_TAG         ${GIT_TAG}
+        GIT_SUBMODULES  ""  # Explicitly disable submodule update to avoid 'jobs' env var conflict
         GIT_SHALLOW     TRUE
         SOURCE_DIR      ${SOURCE_DIR}
         DOWNLOAD_DIR    ${THIRDPARTY_DOWNLOAD_PATH})

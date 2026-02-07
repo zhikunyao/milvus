@@ -30,6 +30,7 @@ FetchContent_Declare(
         milvus-common
         GIT_REPOSITORY  ${GIT_REPOSITORY}
         GIT_TAG         ${MILVUS-COMMON-VERSION}
+        GIT_SUBMODULES  ""  # Explicitly disable submodule update to avoid 'jobs' env var conflict
         SOURCE_DIR      ${CMAKE_CURRENT_BINARY_DIR}/milvus-common-src
         BINARY_DIR      ${CMAKE_CURRENT_BINARY_DIR}/milvus-common-build
         SOURCE_SUBDIR   cpp

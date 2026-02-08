@@ -16,7 +16,7 @@ FROM rockylinux/rockylinux:8
 ARG TARGETARCH
 
 RUN dnf install -y make cmake automake gcc gcc-c++ curl zip unzip tar git which \
-    libaio libuuid-devel wget python3 python3-pip \
+    libaio libaio-devel libuuid-devel wget python38 python38-pip \
     pkg-config perl-IPC-Cmd perl-Digest-SHA libatomic libtool tzdata \
     libstdc++-static
 

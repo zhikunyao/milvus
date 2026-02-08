@@ -36,7 +36,26 @@ FetchContent_Declare(
     GIT_SHALLOW TRUE
 )
 
-FetchContent_MakeAvailable(mongo-cxx-driver)
+# Get the source directory before MakeAvailable
+FetchContent_GetProperties(mongo-cxx-driver)
+if(NOT mongo-cxx-driver_POPULATED)
+    FetchContent_Populate(mongo-cxx-driver)
+
+    # Patch FetchMongoC.cmake to add GIT_SUBMODULES "" to avoid 'jobs' env var conflict
+    set(_FETCH_MONGOC_CMAKE "${mongo-cxx-driver_SOURCE_DIR}/cmake/FetchMongoC.cmake")
+    if(EXISTS "${_FETCH_MONGOC_CMAKE}")
+        file(READ "${_FETCH_MONGOC_CMAKE}" _FETCH_MONGOC_CONTENT)
+        # Add GIT_SUBMODULES "" after GIT_TAG in FetchContent_Declare for mongo-c-driver
+        string(REPLACE
+            "GIT_TAG \${LIBMONGOC_DOWNLOAD_VERSION}\n\n        \${fetch_args}"
+            "GIT_TAG \${LIBMONGOC_DOWNLOAD_VERSION}\n        GIT_SUBMODULES \"\"  # Patched: disable submodule update to avoid 'jobs' env var conflict\n\n        \${fetch_args}"
+            _FETCH_MONGOC_CONTENT "${_FETCH_MONGOC_CONTENT}")
+        file(WRITE "${_FETCH_MONGOC_CMAKE}" "${_FETCH_MONGOC_CONTENT}")
+        message(STATUS "Patched FetchMongoC.cmake to add GIT_SUBMODULES \"\"")
+    endif()
+
+    add_subdirectory(${mongo-cxx-driver_SOURCE_DIR} ${mongo-cxx-driver_BINARY_DIR})
+endif()
 
 # The targets are now available: bsoncxx_shared
 # Create aliases for easier use

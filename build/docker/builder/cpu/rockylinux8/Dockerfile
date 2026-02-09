@@ -16,15 +16,14 @@ FROM rockylinux/rockylinux:8
 ARG TARGETARCH
 
 RUN dnf install -y make cmake automake gcc gcc-c++ curl zip unzip tar git which \
-    libaio libaio-devel libuuid-devel wget python38 python38-pip \
-    pkg-config perl-IPC-Cmd perl-Digest-SHA libatomic libtool tzdata \
-    libstdc++-static
+    libaio libaio-devel libuuid-devel wget python3 python3-pip \
+    pkg-config perl-IPC-Cmd perl-Digest-SHA libatomic libtool tzdata
 
-# install openblas-devel texinfo ninja
+# install packages from powertools repo (libstdc++-static, openblas-devel, etc.)
 RUN dnf -y update && \
     dnf -y install dnf-plugins-core && \
     dnf config-manager --set-enabled powertools && \
-    dnf -y install texinfo openblas-devel ninja-build
+    dnf -y install texinfo openblas-devel ninja-build libstdc++-static
 
 
 RUN pip3 install conan==1.64.1

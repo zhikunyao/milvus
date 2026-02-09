@@ -12,7 +12,6 @@
 #include <gtest/gtest.h>
 #include <stdint.h>
 #include <chrono>
-#include <cstdlib>
 #include <memory>
 #include <string>
 
@@ -27,21 +26,6 @@
 #include "test_utils/Constants.h"
 #include "test_utils/storage_test_utils.h"
 
-// Get test local path, allowing override via environment variable for parallel test execution
-std::string
-GetTestLocalPath() {
-    const char* env_path = std::getenv("MILVUS_TEST_LOCAL_PATH");
-    if (env_path != nullptr && env_path[0] != '\0') {
-        std::string path(env_path);
-        // Ensure path ends with /
-        if (path.back() != '/') {
-            path += '/';
-        }
-        return path;
-    }
-    return TestLocalPath;
-}
-
 int
 main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
@@ -50,7 +34,7 @@ main(int argc, char** argv) {
     // Initialize expression function factory (registers aggregate functions like count, sum, min, max)
     InitExecExpressionFunctionFactory();
 
-    std::string testLocalPath = GetTestLocalPath();
+    std::string testLocalPath = GetTestTempBasePath();
     milvus::storage::LocalChunkManagerSingleton::GetInstance().Init(
         testLocalPath);
     milvus::storage::RemoteChunkManagerSingleton::GetInstance().Init(

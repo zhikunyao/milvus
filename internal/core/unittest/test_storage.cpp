@@ -33,6 +33,7 @@
 #include "storage/Types.h"
 #include "storage/Util.h"
 #include "storage/storage_c.h"
+#include "test_utils/storage_test_utils.h"
 
 using namespace std;
 using namespace milvus;
@@ -88,7 +89,7 @@ TEST_F(StorageTest, InitLocalChunkManagerSingleton) {
 TEST_F(StorageTest, GetLocalUsedSize) {
     int64_t size = 0;
     auto lcm = LocalChunkManagerSingleton::GetInstance().GetChunkManager();
-    // Note: Root path may vary when running with MILVUS_TEST_LOCAL_PATH env var (parallel sharding)
+    EXPECT_EQ(lcm->GetRootPath(), GetTestTempBasePath());
     string test_dir =
         lcm->GetRootPath() + "tmp" +
         // add random number to avoid dir conflict

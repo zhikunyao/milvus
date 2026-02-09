@@ -130,45 +130,57 @@ if [ "$CPP_UT_PARALLEL" = "true" ] && [ "$CPP_UT_SHARDS" -gt 1 ]; then
 
     echo "Started ${#pids[@]} test processes, waiting for completion..."
 
-    # Wait for all tests with timeout (10 minutes per test max for faster debugging)
-    TEST_TIMEOUT=${TEST_TIMEOUT:-600}  # 10 minutes in seconds
+    TEST_TIMEOUT=${TEST_TIMEOUT:-600}  # 10 minutes per test
     failed=0
     failed_tests=()
 
-    for i in "${!pids[@]}"; do
-        pid=${pids[$i]}
-        start_wait=$(date +%s)
+    # Cleanup function to kill all child processes on script exit/cancel
+    cleanup_children() {
+        echo "Cleaning up test processes..."
+        for pid in "${pids[@]}"; do
+            if kill -0 $pid 2>/dev/null; then
+                kill -9 $pid 2>/dev/null || true
+            fi
+        done
+        # Clean up shard temp directories
+        rm -rf /tmp/milvus/local_data_shard* 2>/dev/null || true
+    }
+    trap cleanup_children EXIT INT TERM
 
-        while kill -0 $pid 2>/dev/null; do
-            elapsed=$(($(date +%s) - start_wait))
-            if [ $elapsed -gt $TEST_TIMEOUT ]; then
+    # Start a background timeout watchdog for each process
+    watchdog_pids=()
+    for i in "${!pids[@]}"; do
+        (
+            sleep $TEST_TIMEOUT
+            if kill -0 ${pids[$i]} 2>/dev/null; then
                 echo "TIMEOUT: ${test_names[$i]} (exceeded ${TEST_TIMEOUT}s)"
                 echo "=== Log tail for ${test_names[$i]} (before kill) ==="
                 tail -100 "${log_files[$i]}" 2>/dev/null || echo "(no log file)"
                 echo "=== End log tail ==="
-                kill -9 $pid 2>/dev/null || true
-                failed_tests+=("${test_names[$i]} (TIMEOUT)")
-                failed=1
-                break
+                kill -9 ${pids[$i]} 2>/dev/null || true
             fi
-            # Print progress every 60 seconds
-            if [ $((elapsed % 60)) -eq 0 ] && [ $elapsed -gt 0 ]; then
-                echo "[$(date +%H:%M:%S)] Waiting for ${test_names[$i]} (${elapsed}s elapsed)..."
-            fi
-            sleep 5
-        done
+        ) &
+        watchdog_pids+=($!)
+    done
 
-        # If not timed out, check exit status
-        if [ $elapsed -le $TEST_TIMEOUT ]; then
-            if ! wait $pid 2>/dev/null; then
-                echo "FAILED: ${test_names[$i]}"
-                failed_tests+=("${test_names[$i]}")
-                failed=1
-            else
-                echo "PASSED: ${test_names[$i]}"
-            fi
+    # Wait for all test processes in parallel
+    for i in "${!pids[@]}"; do
+        if wait ${pids[$i]} 2>/dev/null; then
+            echo "PASSED: ${test_names[$i]}"
+        else
+            echo "FAILED: ${test_names[$i]}"
+            failed_tests+=("${test_names[$i]}")
+            failed=1
         fi
     done
+
+    # Kill remaining watchdog processes
+    for wpid in "${watchdog_pids[@]}"; do
+        kill $wpid 2>/dev/null || true
+    done
+
+    # Reset trap since we completed normally
+    trap - EXIT INT TERM
 
     # Print summary
     echo ""

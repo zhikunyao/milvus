@@ -22,6 +22,7 @@
 #include "storage/LocalChunkManagerSingleton.h"
 #include "storage/MmapManager.h"
 #include "storage/RemoteChunkManagerSingleton.h"
+#include "knowhere/comp/knowhere_config.h"
 #include "segcore/arrow_fs_c.h"
 #include "test_utils/Constants.h"
 #include "test_utils/storage_test_utils.h"
@@ -33,6 +34,10 @@ main(int argc, char** argv) {
 
     // Initialize expression function factory (registers aggregate functions like count, sum, min, max)
     InitExecExpressionFunctionFactory();
+
+    // Reduce AIO context pool size for tests (default 512 contexts exhausts
+    // system aio-max-nr when running multiple shards in parallel)
+    knowhere::KnowhereConfig::SetAioContextPool(8);
 
     std::string testLocalPath = GetTestTempBasePath();
     milvus::storage::LocalChunkManagerSingleton::GetInstance().Init(
